@@ -1,0 +1,44 @@
+# Global rules for all web crawlers
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /private/
+Disallow: /admin/
+Crawl-delay: 10
+
+# Specific rules for Google
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /private/
+Disallow: /admin/
+
+# Specific rules for Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /private/
+Disallow: /admin/
+
+# Specific rules for DuckDuckGo
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /api/
+Disallow: /private/
+Disallow: /admin/
+
+# Rules for Google Mobile
+User-agent: Googlebot-Mobile
+Allow: /
+Disallow: /api/
+Disallow: /private/
+Disallow: /admin/
+
+# Rules for Google Images
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /public/images/
+Disallow: /api/
+
+# Sitemaps
+Sitemap: https://dsavisual.robinspt.com/sitemap.xml
