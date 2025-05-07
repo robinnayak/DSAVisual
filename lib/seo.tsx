@@ -14,11 +14,11 @@ export function getDefaultMetadata(overrides?: Partial<Metadata>): Metadata {
       title: 'DSA Visualizer: Interactive Data Structures & Algorithms',
       description:
         'Interactive tutorials and live visualizations to help you understand DSA concepts with ease. Explore operations on Arrays, Trees, Graphs and more.',
-      url: 'https://your-domain.com',
+      url: 'https://dsavisual.robinspt.com',
       siteName: 'DSA Visualizer',
       images: [
         {
-          url: 'https://your-domain.com/images/og-image.png',
+          url: 'https://dsavisual.robinspt.com/favicon.ico',
           width: 1200,
           height: 630,
           alt: 'DSA Visualizer Open Graph Image',
@@ -33,9 +33,9 @@ export function getDefaultMetadata(overrides?: Partial<Metadata>): Metadata {
       title: 'DSA Visualizer: Interactive Data Structures & Algorithms',
       description:
         'Master DSA concepts with interactive visualizations. Learn Arrays, Trees, Graphs step-by-step.',
-      images: ['https://your-domain.com/images/og-image.png'],
+      images: ['https://dsavisual.robinspt.com/favicon.ico'],
     },
-    metadataBase: new URL('https://your-domain.com'),
+    metadataBase: new URL('https://dsavisual.robinspt.com'),
   };
   return { ...defaultMetadata, ...overrides };
 }

@@ -20,7 +20,7 @@ const ConceptsAndDetails: React.FC<Props> = ({ slug }) => {
         if (!res.ok) throw new Error("File not found");
         const text = await res.text();
         setContent(text);
-      } catch (err) {
+      } catch {
         setContent("⚠️ Could not load topic content.");
       }
     };
@@ -29,8 +29,8 @@ const ConceptsAndDetails: React.FC<Props> = ({ slug }) => {
   }, [slug]);
 
   return (
-    <div className="flex justify-center px-4 sm:px-8 mt-14">
-      <div className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl dark:prose-invert max-w-4xl prose-pre:bg-gray-100 prose-code:bg-gray-100">
+    <div className="flex justify-center px-4 mt-14">
+      <div className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl dark:prose-invert max-w-4xl prose-pre:bg-gray-100 prose-code:bg-gray-100 sm:px-7 lg:px-10 xl:px-14 py-4 rounded-lg shadow-md">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeHighlight]}

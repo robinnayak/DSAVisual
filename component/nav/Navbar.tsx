@@ -3,6 +3,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 const navlinks = [
   { name: "Home", path: "/" },
@@ -19,7 +20,16 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0 text-2xl font-bold text-cyan-600">
-            <Link href="/">DSAVisualization</Link>
+            <Link href="/">
+              <Image 
+                src="/images/logo.png"
+                alt="Logo"
+                width={100}
+                height={100}
+                className=""
+
+              />
+            </Link>
           </div>
 
           {/* Desktop Menu */}

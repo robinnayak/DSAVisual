@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/component/nav/Navbar";
 import { getDefaultMetadata } from "@/lib/seo";
+import GoogleAdsense from "@/component/GoogleAdsense";
+import GoogleAnalytics from "@/component/GoogleAnalytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,6 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+            <head>
+        {/* pub-4432854709401834 */}
+        <GoogleAdsense pId="4432854709401834" />
+        <GoogleAnalytics />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

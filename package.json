@@ -12,6 +12,7 @@
     "deploy": "npm run pages:build && wrangler pages deploy"
   },
   "dependencies": {
+    "@google-analytics/data": "^5.1.0",
     "framer-motion": "^12.9.2",
     "highlight.js": "^11.11.1",
     "lucide-react": "^0.503.0",

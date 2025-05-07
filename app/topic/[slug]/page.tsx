@@ -2,7 +2,7 @@
 // export const runtime = "edge";
 
 import { animationComponents } from "@/component/animations";
-import LinkedListFlow from "@/component/codeflow/LinkedListFlow";
+// import LinkedListFlow from "@/component/codeflow/LinkedListFlow";
 import ConceptsAndDetails from "@/component/ConceptAndDetails";
 import { useParams } from "next/navigation";
 import React from "react";
@@ -23,7 +23,7 @@ const TopicPage = () => {
       {/* Animated visualization */}
       <div className="">
         <AnimationComponent />
-        <LinkedListFlow />
+        {/* <LinkedListFlow /> */}
         <ConceptsAndDetails slug={slug} />
       </div>
     </>
