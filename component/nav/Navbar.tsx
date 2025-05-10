@@ -8,6 +8,10 @@ import Image from "next/image";
 const navlinks = [
   { name: "Home", path: "/" },
   { name: "Topics", path: "/topic" },
+  { name: "Git", path: "/git" },
+  {name: "Folder Structure", path: "/folderstructure"},
+  
+  
   // Add more links here
 ];
 
