@@ -1,85 +1,84 @@
 import React from 'react';
-// export const runtime = "edge";
 
 const dsaTopics = [
   {
     title: 'Arrays & Strings',
     questions: [
-      { name: 'Two Sum', difficulty: 'Easy' },
-      { name: 'Best Time to Buy and Sell Stock', difficulty: 'Easy' },
-      { name: 'Product of Array Except Self', difficulty: 'Medium' },
-      { name: 'Longest Substring Without Repeating Characters', difficulty: 'Medium' },
-      { name: 'Trapping Rain Water', difficulty: 'Hard' },
+      { name: 'Two Sum', difficulty: 'Easy', url: 'two-sum' },
+      { name: 'Best Time to Buy and Sell Stock', difficulty: 'Easy', url: 'best-time-to-buy-and-sell-stock' },
+      { name: 'Product of Array Except Self', difficulty: 'Medium', url: 'product-of-array-except-self' },
+      { name: 'Longest Substring Without Repeating Characters', difficulty: 'Medium', url: 'longest-substring-without-repeating-characters' },
+      { name: 'Trapping Rain Water', difficulty: 'Hard', url: 'trapping-rain-water' },
     ],
   },
   {
     title: 'Linked Lists',
     questions: [
-      { name: 'Reverse Linked List', difficulty: 'Easy' },
-      { name: 'Merge Two Sorted Lists', difficulty: 'Easy' },
-      { name: 'Add Two Numbers', difficulty: 'Medium' },
-      { name: 'Linked List Cycle II', difficulty: 'Medium' },
-      { name: 'Copy List with Random Pointer', difficulty: 'Hard' },
+      { name: 'Reverse Linked List', difficulty: 'Easy', url: 'reverse-linked-list' },
+      { name: 'Merge Two Sorted Lists', difficulty: 'Easy', url: 'merge-two-sorted-lists' },
+      { name: 'Add Two Numbers', difficulty: 'Medium', url: 'add-two-numbers' },
+      { name: 'Linked List Cycle II', difficulty: 'Medium', url: 'linked-list-cycle-ii' },
+      { name: 'Copy List with Random Pointer', difficulty: 'Hard', url: 'copy-list-with-random-pointer' },
     ],
   },
   {
     title: 'Stacks & Queues',
     questions: [
-      { name: 'Valid Parentheses', difficulty: 'Easy' },
-      { name: 'Min Stack', difficulty: 'Easy' },
-      { name: 'Implement Queue using Stacks', difficulty: 'Medium' },
-      { name: 'Daily Temperatures', difficulty: 'Medium' },
-      { name: 'Largest Rectangle in Histogram', difficulty: 'Hard' },
+      { name: 'Valid Parentheses', difficulty: 'Easy', url: 'valid-parentheses' },
+      { name: 'Min Stack', difficulty: 'Easy', url: 'min-stack' },
+      { name: 'Implement Queue using Stacks', difficulty: 'Medium', url: 'implement-queue-using-stacks' },
+      { name: 'Daily Temperatures', difficulty: 'Medium', url: 'daily-temperatures' },
+      { name: 'Largest Rectangle in Histogram', difficulty: 'Hard', url: 'largest-rectangle-in-histogram' },
     ],
   },
   {
     title: 'Trees',
     questions: [
-      { name: 'Invert Binary Tree', difficulty: 'Easy' },
-      { name: 'Maximum Depth of Binary Tree', difficulty: 'Easy' },
-      { name: 'Binary Tree Level Order Traversal', difficulty: 'Medium' },
-      { name: 'Validate Binary Search Tree', difficulty: 'Medium' },
-      { name: 'Serialize and Deserialize Binary Tree', difficulty: 'Hard' },
+      { name: 'Invert Binary Tree', difficulty: 'Easy', url: 'invert-binary-tree' },
+      { name: 'Maximum Depth of Binary Tree', difficulty: 'Easy', url: 'maximum-depth-of-binary-tree' },
+      { name: 'Binary Tree Level Order Traversal', difficulty: 'Medium', url: 'binary-tree-level-order-traversal' },
+      { name: 'Validate Binary Search Tree', difficulty: 'Medium', url: 'validate-binary-search-tree' },
+      { name: 'Serialize and Deserialize Binary Tree', difficulty: 'Hard', url: 'serialize-and-deserialize-binary-tree' },
     ],
   },
   {
     title: 'Graphs',
     questions: [
-      { name: 'Number of Islands', difficulty: 'Easy' },
-      { name: 'Flood Fill', difficulty: 'Easy' },
-      { name: 'Course Schedule', difficulty: 'Medium' },
-      { name: 'Pacific Atlantic Water Flow', difficulty: 'Medium' },
-      { name: 'Alien Dictionary', difficulty: 'Hard' },
+      { name: 'Number of Islands', difficulty: 'Easy', url: 'number-of-islands' },
+      { name: 'Flood Fill', difficulty: 'Easy', url: 'flood-fill' },
+      { name: 'Course Schedule', difficulty: 'Medium', url: 'course-schedule' },
+      { name: 'Pacific Atlantic Water Flow', difficulty: 'Medium', url: 'pacific-atlantic-water-flow' },
+      { name: 'Alien Dictionary', difficulty: 'Hard', url: 'alien-dictionary' },
     ],
   },
   {
     title: 'Dynamic Programming',
     questions: [
-      { name: 'Climbing Stairs', difficulty: 'Easy' },
-      { name: 'House Robber', difficulty: 'Easy' },
-      { name: 'Coin Change', difficulty: 'Medium' },
-      { name: 'Longest Palindromic Substring', difficulty: 'Medium' },
-      { name: 'Regular Expression Matching', difficulty: 'Hard' },
+      { name: 'Climbing Stairs', difficulty: 'Easy', url: 'climbing-stairs' },
+      { name: 'House Robber', difficulty: 'Easy', url: 'house-robber' },
+      { name: 'Coin Change', difficulty: 'Medium', url: 'coin-change' },
+      { name: 'Longest Palindromic Substring', difficulty: 'Medium', url: 'longest-palindromic-substring' },
+      { name: 'Regular Expression Matching', difficulty: 'Hard', url: 'regular-expression-matching' },
     ],
   },
   {
     title: 'Backtracking',
     questions: [
-      { name: 'Subsets', difficulty: 'Easy' },
-      { name: 'Combination Sum', difficulty: 'Easy' },
-      { name: 'Permutations', difficulty: 'Medium' },
-      { name: 'Word Search', difficulty: 'Medium' },
-      { name: 'N-Queens', difficulty: 'Hard' },
+      { name: 'Subsets', difficulty: 'Easy', url: 'subsets' },
+      { name: 'Combination Sum', difficulty: 'Easy', url: 'combination-sum' },
+      { name: 'Permutations', difficulty: 'Medium', url: 'permutations' },
+      { name: 'Word Search', difficulty: 'Medium', url: 'word-search' },
+      { name: 'N-Queens', difficulty: 'Hard', url: 'n-queens' },
     ],
   },
   {
     title: 'Greedy',
     questions: [
-      { name: 'Assign Cookies', difficulty: 'Easy' },
-      { name: 'Lemonade Change', difficulty: 'Easy' },
-      { name: 'Jump Game', difficulty: 'Medium' },
-      { name: 'Partition Labels', difficulty: 'Medium' },
-      { name: 'Minimum Number of Refueling Stops', difficulty: 'Hard' },
+      { name: 'Assign Cookies', difficulty: 'Easy', url: 'assign-cookies' },
+      { name: 'Lemonade Change', difficulty: 'Easy', url: 'lemonade-change' },
+      { name: 'Jump Game', difficulty: 'Medium', url: 'jump-game' },
+      { name: 'Partition Labels', difficulty: 'Medium', url: 'partition-labels' },
+      { name: 'Minimum Number of Refueling Stops', difficulty: 'Hard', url: 'minimum-number-of-refueling-stops' },
     ],
   }
 ];
@@ -87,28 +86,37 @@ const dsaTopics = [
 const Topic = () => {
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold text-center mb-8 text-blue-700">DSA Topics with LeetCode Questions</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {dsaTopics.map((topic, index) => (
-          <div key={index} className="bg-white shadow-md rounded-2xl p-4 hover:shadow-lg transition-shadow">
-            <h2 className="text-xl font-semibold text-gray-800 mb-3">{topic.title}</h2>
-            <ul className="text-gray-700 space-y-1">
-              {topic.questions.map((q, i) => (
-                <li key={i}>
-                  <span className="font-medium">{q.name}</span>
-                  <span className={`ml-2 text-sm px-2 py-0.5 rounded-full ${
-                    q.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
-                    q.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {q.difficulty}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+      <h1 className="text-3xl font-bold text-center mb-8 text-blue-700">FAANG DSA Topics & LeetCode Questions</h1>
+      {dsaTopics.map((topic, index) => (
+        <div key={index} className="mb-6">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-3">{topic.title}</h2>
+          <ul className="list-disc pl-6 space-y-1">
+            {topic.questions.map((q, i) => (
+              <li key={i}>
+                <a
+                  href={`https://leetcode.com/problems/${q.url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  {q.name}
+                </a>
+                <span
+                  className={`ml-2 text-sm px-2 py-0.5 rounded-full ${
+                    q.difficulty === 'Easy'
+                      ? 'bg-green-100 text-green-800'
+                      : q.difficulty === 'Medium'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}
+                >
+                  {q.difficulty}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   );
 };
