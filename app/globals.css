@@ -22,19 +22,104 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+  padding-top: 64px; /* Account for fixed navbar */
 }
 
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+/* Animation button styles */
 .btn {
-  @apply text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300;
+  @apply text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+.btn:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+/* Animation node styles */
 .node {
-  @apply bg-white border-2 border-blue-300 rounded-xl px-6 py-4 min-w-[130px] text-center;
+  @apply bg-white border-2 border-blue-300 rounded-xl px-6 py-4 min-w-[130px] text-center shadow-lg transition-all duration-300 hover:shadow-xl;
+  background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
 }
 
-.btn {
-  @apply bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow transition;
+.node:hover {
+  @apply border-blue-400 transform scale-105;
+}
+
+/* Container improvements */
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Smooth transitions for all elements */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Focus styles for accessibility */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  @apply outline-none ring-2 ring-blue-500/50;
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Code block styling */
+pre {
+  @apply bg-gray-900 text-green-400 rounded-lg p-4 overflow-x-auto font-mono text-sm;
+  max-height: 400px;
+}
+
+code {
+  @apply font-mono;
+}
+
+/* Responsive grid improvements */
+.grid-responsive {
+  @apply grid gap-6;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .grid-responsive {
+    grid-template-columns: 1fr;
+  }
 }
 
 

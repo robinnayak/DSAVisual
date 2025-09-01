@@ -39,6 +39,7 @@ const CircularLinkedListAnimation = () => {
   const [variables, setVariables] = useState<{ [key: string]: string | number }>({});
   const [operationSpeed, setOperationSpeed] = useState(1000);
   const [selectedOperation, setSelectedOperation] = useState<string>("");
+  const [currentTraversal, setCurrentTraversal] = useState(-1);
 
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -47,6 +48,7 @@ const CircularLinkedListAnimation = () => {
     setCurrentStep(0);
     setAnimationSteps([]);
     setVariables({});
+    setCurrentTraversal(-1);
     // Reset node states
     setList(prev => prev.map(node => ({
       ...node,
@@ -68,6 +70,7 @@ const CircularLinkedListAnimation = () => {
         ...node,
         isHighlighted: idx === step.highlightNode
       })));
+      setCurrentTraversal(step.highlightNode || -1);
     }
     await sleep(operationSpeed);
   }, [operationSpeed]);
