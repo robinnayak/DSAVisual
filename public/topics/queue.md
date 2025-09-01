@@ -1,250 +1,773 @@
-# 📚 Queue
+# 🚶‍♂️ Queue - First In, First Out (FIFO)
 
-**Difficulty:** Easy to Medium
-
----
-
-## Concepts
-
-### What is a Queue?
-- A **Queue** is a **linear data structure** that follows the **FIFO** principle:
-  - **First In, First Out**  
-- The element that is **added first** is the one **removed first**.
+**Difficulty:** 🟢 Easy  
+**Prerequisites:** Basic programming concepts, arrays  
+**Time to Learn:** 35-45 minutes
 
 ---
 
-## Real-World Analogy
+## 🎯 What You'll Learn
 
-Think of a **queue at a ticket counter** 🎟️:
-- People stand in line.
-- The person who comes first gets served first.
-- New people join at the end of the line.
-
-✅ Simple, organized, and fair!
-
----
-
-## Queue Operations
-
-| Operation     | Description                                     |
-|---------------|-------------------------------------------------|
-| Enqueue       | Add an element at the rear (end).               |
-| Dequeue       | Remove the element from the front.              |
-| Peek / Front  | View the front element without removing it.     |
-| isEmpty       | Check if the queue is empty.                    |
-| Size          | Get the number of elements in the queue.        |
+By the end of this guide, you'll understand:
+- What queues are and how they work
+- FIFO principle and its applications
+- Core queue operations and implementations
+- Different types of queues
+- When to use queues in problem-solving
 
 ---
 
-## Queue Structure (Using Python List)
+## 📚 What is a Queue?
 
-```python
-class Queue:
-    def __init__(self):
-        self.queue = []
+A **queue** is a **linear data structure** that follows the **FIFO (First In, First Out)** principle. Elements are added at one end (**rear/back**) and removed from the other end (**front**).
+
+### Key Characteristics:
+- **FIFO ordering** - first element added is the first to be removed
+- **Two access points** - front (for removal) and rear (for insertion)
+- **Dynamic size** - can grow/shrink during runtime
+- **Fair processing** - maintains order of arrival
+
+---
+
+## 🌟 Real-World Analogy
+
+Think of a **line at a coffee shop** ☕:
+
+```
+Front                                    Rear
+  ↓                                        ↓
+[👤] [👤] [👤] [👤] [👤] ← [New Customer]
+ ↑                           ↑
+Gets served                Joins line
+(Dequeue)                  (Enqueue)
 ```
 
----
+- **People join** at the back of the line (enqueue)
+- **First person** in line gets served first (dequeue)
+- **Fair system** - no cutting in line!
+- **Order preserved** - arrival order = service order
 
-## Basic Operations
-
-### 1. Enqueue
-
-Add an element at the end.
-
-```python
-def enqueue(self, value):
-    self.queue.append(value)
-```
-**Time Complexity:** `O(1)`
+✅ **FIFO in Action:** First customer to arrive is the first to be served!
 
 ---
 
-### 2. Dequeue
+## 🏗️ Queue Structure & Implementation
 
-Remove and return the element from the front.
-
-```python
-def dequeue(self):
-    if self.is_empty():
-        return None
-    return self.queue.pop(0)
-```
-**Time Complexity:** `O(n)` (because popping at index 0 shifts elements)
-
-✅ *Tip:* To improve to `O(1)`, use `collections.deque`.
-
----
-
-### 3. Peek (Front)
-
-Return the front element **without removing** it.
+### Array-Based Implementation (Python)
 
 ```python
-def peek(self):
-    if self.is_empty():
-        return None
-    return self.queue[0]
-```
-**Time Complexity:** `O(1)`
-
----
-
-### 4. isEmpty
-
-Check if the queue has no elements.
-
-```python
-def is_empty(self):
-    return len(self.queue) == 0
-```
-**Time Complexity:** `O(1)`
-
----
-
-### 5. Size
-
-Return the number of elements in the queue.
-
-```python
-def size(self):
-    return len(self.queue)
-```
-**Time Complexity:** `O(1)`
-
----
-
-## Full Queue Class (Python)
-
-```python
-class Queue:
-    def __init__(self):
-        self.queue = []
-
-    def enqueue(self, value):
-        self.queue.append(value)
-
-    def dequeue(self):
-        if self.is_empty():
-            return None
-        return self.queue.pop(0)
-
-    def peek(self):
-        if self.is_empty():
-            return None
-        return self.queue[0]
-
+class ArrayQueue:
+    def __init__(self, capacity=10):
+        self.capacity = capacity
+        self.queue = [None] * capacity
+        self.front = 0     # Index of front element
+        self.rear = -1     # Index of rear element
+        self.size = 0      # Current number of elements
+    
     def is_empty(self):
+        """Check if queue is empty"""
+        return self.size == 0
+    
+    def is_full(self):
+        """Check if queue is full"""
+        return self.size == self.capacity
+    
+    def get_size(self):
+        """Get number of elements"""
+        return self.size
+    
+    def enqueue(self, item):
+        """Add element to rear of queue"""
+        if self.is_full():
+            raise OverflowError("Queue is full")
+        
+        self.rear = (self.rear + 1) % self.capacity  # Circular increment
+        self.queue[self.rear] = item
+        self.size += 1
+        return item
+    
+    def dequeue(self):
+        """Remove and return front element"""
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        
+        item = self.queue[self.front]
+        self.queue[self.front] = None  # Optional cleanup
+        self.front = (self.front + 1) % self.capacity  # Circular increment
+        self.size -= 1
+        return item
+    
+    def peek_front(self):
+        """View front element without removing"""
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        
+        return self.queue[self.front]
+    
+    def peek_rear(self):
+        """View rear element without removing"""
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        
+        return self.queue[self.rear]
+    
+    def display(self):
+        """Print queue contents"""
+        if self.is_empty():
+            print("Queue is empty")
+            return
+        
+        print("Queue (front to rear):")
+        elements = []
+        for i in range(self.size):
+            index = (self.front + i) % self.capacity
+            elements.append(str(self.queue[index]))
+        print(" ← ".join(elements))
+```
+
+### Dynamic List Implementation (Python)
+
+```python
+class ListQueue:
+    def __init__(self):
+        self.queue = []  # Use Python list as underlying structure
+    
+    def is_empty(self):
+        """Check if queue is empty"""
         return len(self.queue) == 0
-
-    def size(self):
+    
+    def get_size(self):
+        """Get number of elements"""
         return len(self.queue)
+    
+    def enqueue(self, item):
+        """Add element to rear of queue"""
+        self.queue.append(item)
+        return item
+    
+    def dequeue(self):
+        """Remove and return front element"""
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        
+        return self.queue.pop(0)  # Remove from front (O(n) operation)
+    
+    def peek_front(self):
+        """View front element without removing"""
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        
+        return self.queue[0]
+    
+    def peek_rear(self):
+        """View rear element without removing"""
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        
+        return self.queue[-1]
+    
+    def display(self):
+        """Print queue contents"""
+        if self.is_empty():
+            print("Queue is empty")
+            return
+        
+        print("Queue (front to rear):")
+        print(" ← ".join(map(str, self.queue)))
+```
 
-# Example Usage
-q = Queue()
-q.enqueue(10)
-q.enqueue(20)
-q.enqueue(30)
-print(q.peek())    # 10
-print(q.dequeue()) # 10
-print(q.peek())    # 20
-print(q.size())    # 2
+### Linked List Implementation
+
+```python
+class QueueNode:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+class LinkedQueue:
+    def __init__(self):
+        self.front = None  # Points to front node
+        self.rear = None   # Points to rear node
+        self.size = 0
+    
+    def is_empty(self):
+        """Check if queue is empty"""
+        return self.front is None
+    
+    def get_size(self):
+        """Get number of elements"""
+        return self.size
+    
+    def enqueue(self, item):
+        """Add element to rear of queue"""
+        new_node = QueueNode(item)
+        
+        if self.is_empty():
+            self.front = self.rear = new_node
+        else:
+            self.rear.next = new_node
+            self.rear = new_node
+        
+        self.size += 1
+        return item
+    
+    def dequeue(self):
+        """Remove and return front element"""
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        
+        item = self.front.data
+        self.front = self.front.next
+        
+        if self.front is None:  # Queue became empty
+            self.rear = None
+        
+        self.size -= 1
+        return item
+    
+    def peek_front(self):
+        """View front element without removing"""
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        
+        return self.front.data
+    
+    def peek_rear(self):
+        """View rear element without removing"""
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        
+        return self.rear.data
+    
+    def display(self):
+        """Print queue contents"""
+        if self.is_empty():
+            print("Queue is empty")
+            return
+        
+        print("Queue (front to rear):")
+        current = self.front
+        elements = []
+        while current:
+            elements.append(str(current.data))
+            current = current.next
+        print(" ← ".join(elements))
 ```
 
 ---
 
-## Time Complexities (Summary)
+## ⚡ Core Operations
 
-| Operation     | Time Complexity (list) | Time Complexity (deque) |
-|---------------|-------------------------|--------------------------|
-| Enqueue       | O(1)                     | O(1)                     |
-| Dequeue       | O(n)                     | O(1)                     |
-| Peek          | O(1)                     | O(1)                     |
-| isEmpty       | O(1)                     | O(1)                     |
-| Size          | O(1)                     | O(1)                     |
+### 1. 📥 **Enqueue Operation**
 
----
+Add an element to the rear of the queue.
 
-## Advantages of Queues
+```python
+def enqueue_demo():
+    queue = ListQueue()
+    
+    # Enqueue elements
+    queue.enqueue(10)  # Queue: [10]
+    queue.enqueue(20)  # Queue: [10, 20]
+    queue.enqueue(30)  # Queue: [10, 20, 30]
+    
+    print(f"Queue size: {queue.get_size()}")  # Output: 3
+    queue.display()  # Output: 10 ← 20 ← 30
+    
+    # Visual representation:
+    # Front                    Rear
+    #   ↓                        ↓
+    # [10] → [20] → [30] → (Next customer)
 
-✅ **Organized Processing:** Maintains the order of arrival.  
-✅ **Useful in Real Systems:** Queues model real-world processes very well.  
-✅ **Efficient with deque:** `collections.deque` provides efficient O(1) insertion and deletion.
-
----
-
-## Disadvantages of Queues
-
-❌ **Slow Dequeue with Lists:** Removing from the front of a list is O(n).  
-❌ **Limited Random Access:** Cannot directly access middle elements (must dequeue).
-
----
-
-## Applications of Queue
-
-📌 **CPU Task Scheduling**  
-📌 **Printer Queue**  
-📌 **Customer Service Call Center**  
-📌 **Breadth-First Search (BFS)** in Trees and Graphs  
-📌 **IO Buffers, Data Streaming**
-
----
-
-## Quick Visualization 📈
-
+enqueue_demo()
 ```
-Front -> 10 -> 20 -> 30 -> Rear
-```
-- **Enqueue:** Add to rear.
-- **Dequeue:** Remove from front.
+
+**⏱️ Time Complexity:** `O(1)` - Constant time  
+**💾 Space Complexity:** `O(1)`
 
 ---
 
-# 📚 Collections.deque (Recommended)
+### 2. 📤 **Dequeue Operation**
 
+Remove and return the front element from the queue.
+
+```python
+def dequeue_demo():
+    queue = ListQueue()
+    queue.enqueue(10)
+    queue.enqueue(20)
+    queue.enqueue(30)
+    
+    # Dequeue elements
+    first_element = queue.dequeue()  # Returns 10
+    print(f"Dequeued: {first_element}")  # Output: 10
+    
+    second_element = queue.dequeue()  # Returns 20
+    print(f"Dequeued: {second_element}")  # Output: 20
+    
+    print(f"Remaining queue size: {queue.get_size()}")  # Output: 1
+    queue.display()  # Shows only [30]
+
+dequeue_demo()
+```
+
+**⏱️ Time Complexity:** 
+- Array/Linked List: `O(1)` - Constant time
+- Python List: `O(n)` - Linear time (due to shifting)
+
+**💾 Space Complexity:** `O(1)`
+
+---
+
+### 3. 👀 **Peek Operations**
+
+View elements without removing them.
+
+```python
+def peek_demo():
+    queue = ListQueue()
+    queue.enqueue(10)
+    queue.enqueue(20)
+    queue.enqueue(30)
+    
+    # Peek at front and rear
+    front_element = queue.peek_front()  # Returns 10
+    rear_element = queue.peek_rear()    # Returns 30
+    
+    print(f"Front element: {front_element}")  # Output: 10
+    print(f"Rear element: {rear_element}")    # Output: 30
+    
+    print(f"Queue size unchanged: {queue.get_size()}")  # Output: 3
+    queue.display()  # Still shows [10, 20, 30]
+
+peek_demo()
+```
+
+**⏱️ Time Complexity:** `O(1)` - Constant time  
+**💾 Space Complexity:** `O(1)`
+
+---
+
+### 4. ❓ **Helper Operations**
+
+```python
+def helper_operations_demo():
+    queue = ListQueue()
+    
+    # Check if empty
+    print(f"Is empty: {queue.is_empty()}")  # Output: True
+    
+    # Add some elements
+    queue.enqueue(10)
+    queue.enqueue(20)
+    
+    # Check size
+    print(f"Size: {queue.get_size()}")  # Output: 2
+    
+    # Check if empty again
+    print(f"Is empty: {queue.is_empty()}")  # Output: False
+    
+    # Clear queue
+    while not queue.is_empty():
+        queue.dequeue()
+    
+    print(f"After clearing - Is empty: {queue.is_empty()}")  # Output: True
+
+helper_operations_demo()
+```
+
+---
+
+## 📊 Time Complexity Summary
+
+| Operation | Array Implementation | List Implementation | Linked List Implementation |
+|-----------|---------------------|--------------------|-----------------------------|
+| **Enqueue** | O(1) | O(1)* | O(1) |
+| **Dequeue** | O(1) | O(n) | O(1) |
+| **Peek Front** | O(1) | O(1) | O(1) |
+| **Peek Rear** | O(1) | O(1) | O(1) |
+| **IsEmpty** | O(1) | O(1) | O(1) |
+| **Size** | O(1) | O(1) | O(1) |
+
+> *Amortized O(1) for dynamic arrays; O(n) for dequeue with Python lists due to shifting
+
+**💾 Space Complexity:** O(n) where n is the number of elements
+
+---
+
+## 🔄 Types of Queues
+
+### 1. **Simple Queue** (What we've covered)
+```
+Front                    Rear
+  ↓                        ↓
+[A] → [B] → [C] → [D] → (Insert here)
+```
+
+### 2. **Circular Queue**
+```python
+class CircularQueue:
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.queue = [None] * capacity
+        self.front = 0
+        self.rear = 0
+        self.size = 0
+    
+    def enqueue(self, item):
+        if self.size == self.capacity:
+            raise OverflowError("Queue is full")
+        
+        self.queue[self.rear] = item
+        self.rear = (self.rear + 1) % self.capacity
+        self.size += 1
+    
+    def dequeue(self):
+        if self.size == 0:
+            raise IndexError("Queue is empty")
+        
+        item = self.queue[self.front]
+        self.front = (self.front + 1) % self.capacity
+        self.size -= 1
+        return item
+```
+
+### 3. **Double-Ended Queue (Deque)**
 ```python
 from collections import deque
 
-q = deque()
-q.append(10)     # Enqueue
-q.append(20)
-q.append(30)
-print(q[0])      # Peek: 10
-q.popleft()      # Dequeue
-print(q[0])      # Peek after dequeue: 20
+# Built-in deque supports operations at both ends
+dq = deque()
+
+# Add to front/rear
+dq.appendleft(1)    # Add to front
+dq.append(2)        # Add to rear
+
+# Remove from front/rear
+dq.popleft()        # Remove from front
+dq.pop()            # Remove from rear
 ```
-✅ Here, both enqueue and dequeue are `O(1)`!
+
+### 4. **Priority Queue**
+```python
+import heapq
+
+class PriorityQueue:
+    def __init__(self):
+        self.heap = []
+    
+    def enqueue(self, item, priority):
+        heapq.heappush(self.heap, (priority, item))
+    
+    def dequeue(self):
+        if self.heap:
+            return heapq.heappop(self.heap)[1]
+        raise IndexError("Queue is empty")
+```
 
 ---
 
-# Conclusion
+## 🎯 Real-World Applications
 
-- **Queues** are perfect when **order matters** — **first come, first served**.
-- Ideal for:
-  - **Task scheduling**
-  - **Process management**
-  - **Graph Traversal (BFS)**
+### 1. **Task Scheduling**
+```python
+class TaskScheduler:
+    def __init__(self):
+        self.task_queue = LinkedQueue()
+    
+    def add_task(self, task):
+        """Add task to queue"""
+        self.task_queue.enqueue(task)
+        print(f"Task '{task}' added to queue")
+    
+    def process_next_task(self):
+        """Process next task in queue"""
+        if not self.task_queue.is_empty():
+            task = self.task_queue.dequeue()
+            print(f"Processing task: '{task}'")
+            return task
+        print("No tasks to process")
+        return None
+    
+# Usage
+scheduler = TaskScheduler()
+scheduler.add_task("Send email")
+scheduler.add_task("Generate report")
+scheduler.add_task("Backup database")
+
+scheduler.process_next_task()  # Processes "Send email" first
+```
+
+### 2. **Breadth-First Search (BFS)**
+```python
+def bfs_traversal(graph, start):
+    """BFS using queue"""
+    visited = set()
+    queue = LinkedQueue()
+    
+    queue.enqueue(start)
+    visited.add(start)
+    
+    while not queue.is_empty():
+        current = queue.dequeue()
+        print(current, end=" ")
+        
+        for neighbor in graph[current]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.enqueue(neighbor)
+
+# Example graph
+graph = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F'],
+    'D': [],
+    'E': ['F'],
+    'F': []
+}
+
+bfs_traversal(graph, 'A')  # Output: A B C D E F
+```
+
+### 3. **Buffer for Data Streams**
+```python
+class StreamBuffer:
+    def __init__(self, max_size=100):
+        self.buffer = LinkedQueue()
+        self.max_size = max_size
+    
+    def add_data(self, data):
+        """Add data to buffer"""
+        if self.buffer.get_size() >= self.max_size:
+            # Remove oldest data when buffer is full
+            self.buffer.dequeue()
+        
+        self.buffer.enqueue(data)
+    
+    def process_batch(self, batch_size=10):
+        """Process batch of data"""
+        batch = []
+        for _ in range(min(batch_size, self.buffer.get_size())):
+            batch.append(self.buffer.dequeue())
+        return batch
+
+# Usage
+buffer = StreamBuffer(max_size=5)
+for i in range(10):
+    buffer.add_data(f"data_{i}")
+
+print(buffer.process_batch(3))  # Processes oldest 3 items
+```
+
+### 4. **Print Queue Management**
+```python
+class PrintJob:
+    def __init__(self, doc_name, pages, priority=1):
+        self.doc_name = doc_name
+        self.pages = pages
+        self.priority = priority
+    
+    def __str__(self):
+        return f"Job: {self.doc_name} ({self.pages} pages)"
+
+class PrintQueue:
+    def __init__(self):
+        self.queue = LinkedQueue()
+    
+    def submit_job(self, job):
+        """Submit print job"""
+        self.queue.enqueue(job)
+        print(f"Submitted: {job}")
+    
+    def process_job(self):
+        """Process next print job"""
+        if not self.queue.is_empty():
+            job = self.queue.dequeue()
+            print(f"Printing: {job}")
+            return job
+        print("No jobs in queue")
+        return None
+
+# Usage
+printer = PrintQueue()
+printer.submit_job(PrintJob("Report.pdf", 10))
+printer.submit_job(PrintJob("Invoice.pdf", 2))
+printer.process_job()  # Prints "Report.pdf" first
+```
 
 ---
-# ✅ Bonus Tip
 
-If the question involves:
-- **Order of processing**
-- **Service center scenarios**
-- **Level-order traversals**
+## ✅ Advantages of Queues
 
-👉 **Immediately think about Queues!**
-
----
-
-# 🎯 Extra (Small Challenge)
-
-> Implement a **Queue using Linked List** instead of Python’s list!  
-It gives better understanding of dynamic memory management. 🚀
+| Advantage | Description |
+|-----------|-------------|
+| 🎯 **Fair Processing** | First-come, first-served principle |
+| 🚀 **Efficient Operations** | O(1) enqueue and dequeue (proper implementation) |
+| 📊 **Ordered Processing** | Maintains insertion order |
+| 🔧 **Versatile** | Useful for scheduling, buffering, BFS |
+| 💡 **Simple Implementation** | Easy to understand and implement |
 
 ---
 
-# 📚 End of Queue Guide 📚✨
+## ❌ Disadvantages of Queues
+
+| Disadvantage | Description |
+|--------------|-------------|
+| 🚫 **Limited Access** | Can only access front and rear elements |
+| 📏 **No Random Access** | Cannot access middle elements directly |
+| 🔍 **No Search** | Cannot search efficiently |
+| 📊 **No Iteration** | Cannot traverse without dequeuing |
 
 ---
 
+## 🎯 When to Use Queues
+
+### ✅ **Perfect for:**
+- **Task scheduling** and job processing
+- **Breadth-first search** algorithms
+- **Data buffering** and streaming
+- **Print job management**
+- **Process scheduling** in operating systems
+- **Handling requests** in web servers
+
+### ❌ **Avoid when:**
+- **Random access** to elements needed
+- **LIFO behavior** is required (use stack instead)
+- **Priority-based processing** needed (use priority queue)
+- **Frequent search** operations required
+
+---
+
+## 💡 Common Patterns & Interview Questions
+
+### 1. **Implement Queue using Stacks**
+```python
+class QueueUsingStacks:
+    def __init__(self):
+        self.stack1 = []  # For enqueue
+        self.stack2 = []  # For dequeue
+    
+    def enqueue(self, item):
+        self.stack1.append(item)
+    
+    def dequeue(self):
+        if not self.stack2:
+            while self.stack1:
+                self.stack2.append(self.stack1.pop())
+        
+        if not self.stack2:
+            raise IndexError("Queue is empty")
+        
+        return self.stack2.pop()
+```
+
+### 2. **Sliding Window Maximum** (LeetCode Hard)
+```python
+from collections import deque
+
+def maxSlidingWindow(nums, k):
+    """Find maximum in each sliding window"""
+    dq = deque()  # Store indices
+    result = []
+    
+    for i, num in enumerate(nums):
+        # Remove indices outside window
+        while dq and dq[0] <= i - k:
+            dq.popleft()
+        
+        # Remove indices with smaller values
+        while dq and nums[dq[-1]] <= num:
+            dq.pop()
+        
+        dq.append(i)
+        
+        # Add maximum to result
+        if i >= k - 1:
+            result.append(nums[dq[0]])
+    
+    return result
+```
+
+### 3. **First Non-Repeating Character in Stream**
+```python
+def firstNonRepeating(stream):
+    """Find first non-repeating character in stream"""
+    char_count = {}
+    queue = LinkedQueue()
+    result = []
+    
+    for char in stream:
+        char_count[char] = char_count.get(char, 0) + 1
+        queue.enqueue(char)
+        
+        # Remove repeating characters from front
+        while not queue.is_empty() and char_count[queue.peek_front()] > 1:
+            queue.dequeue()
+        
+        # Add result
+        if queue.is_empty():
+            result.append('#')  # No non-repeating character
+        else:
+            result.append(queue.peek_front())
+    
+    return result
+
+# Example: "ABCCAB" → ['A', 'A', 'A', 'B', 'B', '#']
+```
+
+---
+
+## 🧪 Practice Problems
+
+### Beginner
+1. **Implement queue** using arrays and linked lists
+2. **Reverse first K elements** of queue
+3. **Check if queue is palindrome**
+4. **Generate binary numbers** using queue
+
+### Intermediate
+1. **Implement stack using queues**
+2. **First negative integer** in sliding window
+3. **Circular queue implementation**
+4. **Queue using two stacks**
+
+### Advanced
+1. **Sliding window maximum**
+2. **LRU Cache using queue**
+3. **Design hit counter**
+4. **Moving average from data stream**
+
+---
+
+## 🎯 Key Takeaways
+
+> **Queues are perfect for FIFO scenarios** and are essential for BFS algorithms, task scheduling, and fair resource allocation.
+
+### Remember:
+1. **FIFO principle** - first in, first out
+2. **Two access points** - front for removal, rear for insertion
+3. **Fair processing** - maintains order of arrival
+4. **O(1) operations** with proper implementation
+5. **Essential for BFS** and level-order traversals
+
+---
+
+## 🚀 Next Steps
+
+1. **Master basic operations** until they become intuitive
+2. **Practice BFS algorithms** using queues
+3. **Learn circular queues** for efficient memory usage
+4. **Understand priority queues** for advanced scheduling
+5. **Explore deque** for double-ended operations
+
+---
+
+## 📖 Additional Resources
+
+- **Visualization:** VisuAlgo Queue, Algorithm Visualizer
+- **Practice:** LeetCode Queue problems, HackerRank
+- **Theory:** "Introduction to Algorithms" by CLRS
+- **Applications:** Operating systems, networking, game development
+
+Remember: **Think FIFO!** When you see problems involving fair processing, scheduling, or level-by-level traversal, consider using a queue. 🎯

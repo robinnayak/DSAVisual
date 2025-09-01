@@ -1,245 +1,690 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Node {
-  id: number
-  value: number
+  id: number;
+  value: number;
+  isHead?: boolean;
+  isNew?: boolean;
+  isHighlighted?: boolean;
+  isBeingDeleted?: boolean;
+}
+
+interface AnimationStep {
+  line: number;
+  code: string;
+  explanation: string;
+  nodeStates?: Node[];
+  variables?: { [key: string]: string | number };
+  highlightNodes?: number[];
+  pointerPosition?: { current?: number; previous?: number; next?: number };
 }
 
 const LinkedListAnimation = () => {
   const [list, setList] = useState<Node[]>([
-    { id: 1, value: 10 },
+    { id: 1, value: 10, isHead: true },
     { id: 2, value: 20 },
     { id: 3, value: 30 },
     { id: 4, value: 40 },
-  ])
+  ]);
+  
+  const [inputValue, setInputValue] = useState("");
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [animationSteps, setAnimationSteps] = useState<AnimationStep[]>([]);
+  const [variables, setVariables] = useState<{ [key: string]: string | number }>({});
+  const [operationSpeed, setOperationSpeed] = useState(1000);
+  const [selectedOperation, setSelectedOperation] = useState<string>("");
+  const [pointers, setPointers] = useState<{ current?: number; previous?: number; next?: number }>({});
 
-  const [inputValue, setInputValue] = useState('')
-  const [position, setPosition] = useState<number>(0)
-  const [pythonCode, setPythonCode] = useState<string>('') // <-- Added for Python Code display
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  const insertAtBeginning = () => {
-    if (!inputValue) return
-    const newNode: Node = { id: Date.now(), value: Number(inputValue) }
-    setList(prev => [newNode, ...prev])
-    setInputValue('')
-    setPythonCode(`
-class Node:
-    def __init__(self, data):
-        self.data = data
-        self.next = None
+  const resetAnimation = () => {
+    setIsAnimating(false);
+    setCurrentStep(0);
+    setAnimationSteps([]);
+    setVariables({});
+    setPointers({});
+    // Reset node states
+    setList(prev => prev.map(node => ({
+      ...node,
+      isNew: false,
+      isHighlighted: false,
+      isBeingDeleted: false
+    })));
+  };
 
-class LinkedList:
-    def __init__(self):
-        self.head = None
+  const executeStep = useCallback(async (step: AnimationStep) => {
+    if (step.variables) {
+      setVariables(step.variables);
+    }
+    if (step.pointerPosition) {
+      setPointers(step.pointerPosition);
+    }
+    if (step.nodeStates) {
+      setList(step.nodeStates);
+    } else if (step.highlightNodes) {
+      setList(prev => prev.map((node, idx) => ({
+        ...node,
+        isHighlighted: step.highlightNodes?.includes(idx) || false
+      })));
+    }
+    await sleep(operationSpeed);
+  }, [operationSpeed]);
 
-    def insert_at_beginning(self, data):
-        new_node = Node(data)
-        new_node.next = self.head
-        self.head = new_node
-`)
-  }
+  useEffect(() => {
+    if (isAnimating && currentStep < animationSteps.length) {
+      executeStep(animationSteps[currentStep]).then(() => {
+        setCurrentStep(prev => prev + 1);
+      });
+    } else if (isAnimating && currentStep >= animationSteps.length) {
+      setIsAnimating(false);
+    }
+  }, [isAnimating, currentStep, animationSteps, executeStep]);
 
-  const insertAtEnd = () => {
-    if (!inputValue) return
-    const newNode: Node = { id: Date.now(), value: Number(inputValue) }
-    setList(prev => [...prev, newNode])
-    setInputValue('')
-    setPythonCode(`
-class Node:
-    def __init__(self, data):
-        self.data = data
-        self.next = None
+  // Animate Insert at Beginning
+  const animateInsertAtBeginning = () => {
+    if (!inputValue || isNaN(Number(inputValue))) {
+      alert("Please enter a valid number");
+      return;
+    }
 
-class LinkedList:
-    def __init__(self):
-        self.head = None
+    const newValue = Number(inputValue);
+    resetAnimation();
+    setSelectedOperation("Insert at Beginning");
 
-    def insert_at_end(self, data):
-        new_node = Node(data)
-        if not self.head:
-            self.head = new_node
-            return
-        temp = self.head
-        while temp.next:
-            temp = temp.next
-        temp.next = new_node
-`)
-  }
+    const steps: AnimationStep[] = [
+      {
+        line: 1,
+        code: `def insert_at_beginning(self, data):`,
+        explanation: "Define function to insert node at the beginning",
+        variables: { data: newValue, head: list[0]?.value || "None" }
+      },
+      {
+        line: 2,
+        code: `    new_node = Node(${newValue})`,
+        explanation: `Create a new node with value ${newValue}`,
+        variables: { data: newValue, new_node: newValue, head: list[0]?.value || "None" },
+        nodeStates: [
+          { id: Date.now(), value: newValue, isNew: true, isHead: false },
+          ...list.map(node => ({ ...node, isHead: false }))
+        ]
+      },
+      {
+        line: 3,
+        code: `    new_node.next = self.head`,
+        explanation: `Point new node's next to current head (${list[0]?.value || "None"})`,
+        variables: { data: newValue, new_node: newValue, head: list[0]?.value || "None" },
+        pointerPosition: { current: 0, next: 1 }
+      },
+      {
+        line: 4,
+        code: `    self.head = new_node`,
+        explanation: `Update head to point to the new node`,
+        variables: { data: newValue, new_node: newValue, head: newValue },
+        nodeStates: [
+          { id: Date.now(), value: newValue, isNew: false, isHead: true },
+          ...list.map(node => ({ ...node, isHead: false }))
+        ]
+      }
+    ];
 
-  const insertAtPos = () => {
-    if (!inputValue) return
-    const newNode: Node = { id: Date.now(), value: Number(inputValue) }
-    const pos = Math.min(Math.max(position, 0), list.length)
-    const updatedList = [...list.slice(0, pos), newNode, ...list.slice(pos)]
-    setList(updatedList)
-    setInputValue('')
-    setPythonCode(`
-class Node:
-    def __init__(self, data):
-        self.data = data
-        self.next = None
+    setAnimationSteps(steps);
+    setInputValue("");
+    setIsAnimating(true);
+  };
 
-class LinkedList:
-    def __init__(self):
-        self.head = None
+  // Animate Insert at End
+  const animateInsertAtEnd = () => {
+    if (!inputValue || isNaN(Number(inputValue))) {
+      alert("Please enter a valid number");
+      return;
+    }
 
-    def insert_at_position(self, pos, data):
-        new_node = Node(data)
-        if pos == 0:
-            new_node.next = self.head
-            self.head = new_node
-            return
-        temp = self.head
-        for _ in range(pos - 1):
-            if temp is None:
-                return
-            temp = temp.next
-        new_node.next = temp.next
-        temp.next = new_node
-`)
-  }
+    const newValue = Number(inputValue);
+    resetAnimation();
+    setSelectedOperation("Insert at End");
 
-  const deleteAtBeginning = () => {
-    setList(prev => prev.slice(1))
-    setPythonCode(`
-class LinkedList:
-    def __init__(self):
-        self.head = None
+    const steps: AnimationStep[] = [
+      {
+        line: 1,
+        code: `def insert_at_end(self, data):`,
+        explanation: "Define function to insert node at the end",
+        variables: { data: newValue }
+      },
+      {
+        line: 2,
+        code: `    new_node = Node(${newValue})`,
+        explanation: `Create a new node with value ${newValue}`,
+        variables: { data: newValue, new_node: newValue }
+      },
+      {
+        line: 3,
+        code: `    if not self.head:`,
+        explanation: "Check if list is empty",
+        variables: { data: newValue, new_node: newValue, head: list[0]?.value || "None" }
+      }
+    ];
 
-    def delete_at_beginning(self):
-        if self.head:
-            self.head = self.head.next
-`)
-  }
+    if (list.length === 0) {
+      steps.push({
+        line: 4,
+        code: `        self.head = new_node`,
+        explanation: "List is empty, make new node the head",
+        variables: { data: newValue, new_node: newValue, head: newValue },
+        nodeStates: [{ id: Date.now(), value: newValue, isNew: true, isHead: true }]
+      });
+    } else {
+      steps.push({
+        line: 5,
+        code: `    current = self.head`,
+        explanation: "Start traversal from head",
+        variables: { data: newValue, new_node: newValue, current: list[0]?.value },
+        pointerPosition: { current: 0 }
+      });
 
-  const deleteAtEnd = () => {
-    setList(prev => prev.slice(0, -1))
-    setPythonCode(`
-class LinkedList:
-    def __init__(self):
-        self.head = None
+      // Add traversal steps
+      for (let i = 0; i < list.length - 1; i++) {
+        steps.push({
+          line: 6,
+          code: `    while current.next:`,
+          explanation: `Check if current node (${list[i].value}) has next`,
+          variables: { data: newValue, new_node: newValue, current: list[i].value },
+          pointerPosition: { current: i },
+          highlightNodes: [i]
+        });
+        
+        steps.push({
+          line: 7,
+          code: `        current = current.next`,
+          explanation: `Move to next node (${list[i + 1].value})`,
+          variables: { data: newValue, new_node: newValue, current: list[i + 1].value },
+          pointerPosition: { current: i + 1 }
+        });
+      }
 
-    def delete_at_end(self):
-        if not self.head:
-            return
-        if not self.head.next:
-            self.head = None
-            return
-        temp = self.head
-        while temp.next.next:
-            temp = temp.next
-        temp.next = None
-`)
-  }
+      steps.push({
+        line: 8,
+        code: `    current.next = new_node`,
+        explanation: `Link last node to new node`,
+        variables: { data: newValue, new_node: newValue, current: list[list.length - 1].value },
+        nodeStates: [
+          ...list,
+          { id: Date.now(), value: newValue, isNew: true, isHead: false }
+        ]
+      });
+    }
 
-  const deleteAtPos = () => {
-    const pos = Math.min(Math.max(position, 0), list.length - 1)
-    const updatedList = list.filter((_, idx) => idx !== pos)
-    setList(updatedList)
-    setPythonCode(`
-class LinkedList:
-    def __init__(self):
-        self.head = None
+    setAnimationSteps(steps);
+    setInputValue("");
+    setIsAnimating(true);
+  };
 
-    def delete_at_position(self, pos):
-        if pos == 0 and self.head:
-            self.head = self.head.next
-            return
-        temp = self.head
-        for _ in range(pos - 1):
-            if temp is None:
-                return
-            temp = temp.next
-        if temp and temp.next:
-            temp.next = temp.next.next
-`)
-  }
+  // Animate Delete by Value
+  const animateDeleteByValue = () => {
+    const target = Number(inputValue);
+    if (isNaN(target)) {
+      alert("Please enter a valid number");
+      return;
+    }
+
+    resetAnimation();
+    setSelectedOperation("Delete by Value");
+
+    const steps: AnimationStep[] = [
+      {
+        line: 1,
+        code: `def delete_by_value(self, target):`,
+        explanation: `Define function to delete node with value ${target}`,
+        variables: { target: target }
+      },
+      {
+        line: 2,
+        code: `    if not self.head:`,
+        explanation: "Check if list is empty",
+        variables: { target: target, head: list[0]?.value || "None" }
+      }
+    ];
+
+    if (list.length === 0) {
+      steps.push({
+        line: 3,
+        code: `        return  # List is empty`,
+        explanation: "List is empty, nothing to delete",
+        variables: { target: target, result: "None" }
+      });
+    } else {
+      // Check if head node is the target
+      if (list[0].value === target) {
+        steps.push({
+          line: 4,
+          code: `    if self.head.data == ${target}:`,
+          explanation: `Head node value (${list[0].value}) equals target (${target})`,
+          variables: { target: target, head: list[0].value },
+          highlightNodes: [0]
+        });
+        
+        steps.push({
+          line: 5,
+          code: `        self.head = self.head.next`,
+          explanation: "Update head to next node, removing current head",
+          variables: { target: target, head: list[1]?.value || "None" },
+          nodeStates: list.slice(1).map((node, idx) => ({
+            ...node,
+            isHead: idx === 0
+          }))
+        });
+      } else {
+        // Traverse to find the target
+        steps.push({
+          line: 6,
+          code: `    current = self.head`,
+          explanation: "Start traversal from head",
+          variables: { target: target, current: list[0].value },
+          pointerPosition: { current: 0 }
+        });
+
+        let foundIndex = -1;
+        for (let i = 0; i < list.length; i++) {
+          steps.push({
+            line: 7,
+            code: `    while current and current.data != ${target}:`,
+            explanation: `Check if current node (${list[i].value}) equals target (${target})`,
+            variables: { target: target, current: list[i].value },
+            highlightNodes: [i]
+          });
+
+          if (list[i].value === target) {
+            foundIndex = i;
+            steps.push({
+              line: 8,
+              code: `    # Found target node!`,
+              explanation: `Found target node with value ${target} at position ${i}`,
+              variables: { target: target, current: list[i].value, found: "true" },
+              highlightNodes: [i]
+            });
+            break;
+          } else if (i < list.length - 1) {
+            steps.push({
+              line: 9,
+              code: `        previous = current`,
+              explanation: `Store current as previous`,
+              variables: { target: target, current: list[i].value, previous: list[i].value },
+              pointerPosition: { current: i, previous: i }
+            });
+            
+            steps.push({
+              line: 10,
+              code: `        current = current.next`,
+              explanation: `Move to next node`,
+              variables: { target: target, current: list[i + 1].value, previous: list[i].value },
+              pointerPosition: { current: i + 1, previous: i }
+            });
+          }
+        }
+
+        if (foundIndex !== -1 && foundIndex > 0) {
+          steps.push({
+            line: 11,
+            code: `    previous.next = current.next`,
+            explanation: `Link previous node to current's next, removing target node`,
+            variables: { target: target, previous: list[foundIndex - 1].value },
+            nodeStates: list.filter((_, idx) => idx !== foundIndex)
+          });
+        } else if (foundIndex === -1) {
+          steps.push({
+            line: 12,
+            code: `    # Target not found`,
+            explanation: `Target value ${target} not found in the list`,
+            variables: { target: target, result: "Not found" }
+          });
+        }
+      }
+    }
+
+    setAnimationSteps(steps);
+    setInputValue("");
+    setIsAnimating(true);
+  };
+
+  // Animate Search
+  const animateSearch = () => {
+    const target = Number(inputValue);
+    if (isNaN(target)) {
+      alert("Please enter a valid number");
+      return;
+    }
+
+    resetAnimation();
+    setSelectedOperation("Search");
+
+    const steps: AnimationStep[] = [
+      {
+        line: 1,
+        code: `def search(self, target):`,
+        explanation: `Define function to search for value ${target}`,
+        variables: { target: target }
+      },
+      {
+        line: 2,
+        code: `    current = self.head`,
+        explanation: "Start search from head",
+        variables: { target: target, current: list[0]?.value || "None" },
+        pointerPosition: { current: 0 }
+      }
+    ];
+
+    let found = false;
+    for (let i = 0; i < list.length; i++) {
+      steps.push({
+        line: 3,
+        code: `    while current:`,
+        explanation: `Check if current node exists`,
+        variables: { target: target, current: list[i].value, position: i },
+        highlightNodes: [i]
+      });
+
+      steps.push({
+        line: 4,
+        code: `        if current.data == ${target}:`,
+        explanation: `Compare current value (${list[i].value}) with target (${target})`,
+        variables: { target: target, current: list[i].value, position: i },
+        highlightNodes: [i]
+      });
+
+      if (list[i].value === target) {
+        found = true;
+        steps.push({
+          line: 5,
+          code: `            return True  # Found!`,
+          explanation: `Target found at position ${i}!`,
+          variables: { target: target, current: list[i].value, position: i, result: "Found" },
+          highlightNodes: [i]
+        });
+        break;
+      } else {
+        steps.push({
+          line: 6,
+          code: `        current = current.next`,
+          explanation: `Move to next node`,
+          variables: { target: target, current: list[i + 1]?.value || "None", position: i + 1 },
+          pointerPosition: { current: i + 1 }
+        });
+      }
+    }
+
+    if (!found) {
+      steps.push({
+        line: 7,
+        code: `    return False  # Not found`,
+        explanation: `Target ${target} not found in the list`,
+        variables: { target: target, result: "Not found" }
+      });
+    }
+
+    setAnimationSteps(steps);
+    setInputValue("");
+    setIsAnimating(true);
+  };
+
+  const manualStepControl = () => {
+    if (currentStep < animationSteps.length) {
+      executeStep(animationSteps[currentStep]);
+      setCurrentStep(prev => prev + 1);
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gradient-to-tr from-blue-50 to-purple-100">
-      <h1 className="text-5xl font-extrabold mb-10 text-blue-700 tracking-wide drop-shadow-md">
-        Linked List Visualizer 📚
-      </h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-5xl font-bold text-center text-purple-800 mb-8">
+          🔗 Interactive Linked List Visualizer
+        </h1>
 
-      <div className="flex flex-wrap gap-4 mb-10 justify-center">
-        <input
-          type="number"
-          value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
-          placeholder="Data"
-          className="border-2 border-blue-400 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-300"
-        />
-        <input
-          type="number"
-          value={position}
-          onChange={e => setPosition(Number(e.target.value))}
-          placeholder="Position"
-          className="border-2 border-purple-400 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-purple-300"
-        />
-      </div>
-
-      <div className="flex flex-wrap gap-3 mb-10 justify-center">
-        <button onClick={insertAtBeginning} className="btn bg-green-500 hover:bg-green-600">
-          Insert at Beginning
-        </button>
-        <button onClick={insertAtEnd} className="btn bg-green-500 hover:bg-green-600">
-          Insert at End
-        </button>
-        <button onClick={insertAtPos} className="btn bg-green-500 hover:bg-green-600">
-          Insert at Position
-        </button>
-        <button onClick={deleteAtBeginning} className="btn bg-red-500 hover:bg-red-600">
-          Delete at Beginning
-        </button>
-        <button onClick={deleteAtEnd} className="btn bg-red-500 hover:bg-red-600">
-          Delete at End
-        </button>
-        <button onClick={deleteAtPos} className="btn bg-red-500 hover:bg-red-600">
-          Delete at Position
-        </button>
-      </div>
-
-      {/* Linked List Visual */}
-      <div className="flex items-center gap-8 flex-wrap justify-center mb-16">
-        <div className="font-bold text-xl text-gray-700">Head ➡</div>
-        <AnimatePresence>
-          {list.map((node, idx) => (
-            <motion.div
-              key={node.id}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.5 }}
-              transition={{ duration: 0.3 }}
-              className="flex flex-col items-center"
+        {/* Operation Controls */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">🎮 Controls</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <input
+              type="number"
+              placeholder="Value"
+              className="px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
+            <select
+              className="px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-green-500"
+              value={operationSpeed}
+              onChange={(e) => setOperationSpeed(Number(e.target.value))}
             >
-              <div className="node shadow-lg">
-                <div className="text-xl font-semibold mb-1">Data: {node.value}</div>
-                <div className="text-sm text-gray-500">
-                  Next: {list[idx + 1] ? list[idx + 1].value : 'NULL'}
+              <option value={2000}>Slow (2s)</option>
+              <option value={1000}>Normal (1s)</option>
+              <option value={500}>Fast (0.5s)</option>
+            </select>
+            <button
+              onClick={resetAnimation}
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              🔄 Reset
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <button onClick={animateInsertAtBeginning} className="btn-primary">
+              ⬅️ Insert at Head
+            </button>
+            <button onClick={animateInsertAtEnd} className="btn-primary">
+              ➡️ Insert at Tail
+            </button>
+            <button onClick={animateDeleteByValue} className="btn-secondary">
+              🗑️ Delete by Value
+            </button>
+            <button onClick={animateSearch} className="btn-accent">
+              🔍 Search
+            </button>
+            <button
+              onClick={() => setIsAnimating(!isAnimating)}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                isAnimating ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-green-500 hover:bg-green-600 text-white'
+              }`}
+            >
+              {isAnimating ? '⏸️ Pause' : '▶️ Play'}
+            </button>
+          </div>
+        </div>
+
+        {/* Linked List Visualization */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">🔗 Linked List Visualization</h2>
+          <div className="flex items-center gap-4 overflow-x-auto p-4 bg-gray-50 rounded-lg min-h-[120px]">
+            {list.length === 0 ? (
+              <div className="flex items-center justify-center w-full h-20 text-gray-500 text-lg">
+                Empty List - Head → NULL
+              </div>
+            ) : (
+              <AnimatePresence>
+                {list.map((node, idx) => (
+                  <React.Fragment key={node.id}>
+                    {/* Node */}
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ 
+                        opacity: 1, 
+                        scale: node.isHighlighted ? 1.1 : 1,
+                        borderColor: node.isHighlighted ? '#9333ea' : 
+                                   node.isNew ? '#10b981' : 
+                                   node.isBeingDeleted ? '#ef4444' : '#d1d5db'
+                      }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      className={`
+                        relative flex flex-col items-center justify-center 
+                        w-20 h-16 rounded-lg shadow-md font-bold text-lg border-4
+                        ${node.isHighlighted 
+                          ? 'bg-purple-200 border-purple-500 text-purple-800' 
+                          : node.isNew
+                          ? 'bg-green-200 border-green-500 text-green-800'
+                          : node.isBeingDeleted
+                          ? 'bg-red-200 border-red-500 text-red-800'
+                          : 'bg-white border-gray-300 text-gray-700'
+                        }
+                      `}
+                    >
+                      {/* Head indicator */}
+                      {node.isHead && (
+                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs font-bold text-purple-600">
+                          HEAD
+                        </div>
+                      )}
+                      
+                      {/* Node value */}
+                      <div className="text-sm">{node.value}</div>
+                      
+                      {/* Pointer indicators */}
+                      {pointers.current === idx && (
+                        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs font-bold text-blue-600">
+                          CURRENT
+                        </div>
+                      )}
+                      {pointers.previous === idx && (
+                        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs font-bold text-orange-600">
+                          PREV
+                        </div>
+                      )}
+                    </motion.div>
+
+                    {/* Arrow */}
+                    {idx < list.length - 1 && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex items-center"
+                      >
+                        <div className="w-8 h-0.5 bg-gray-400"></div>
+                        <div className="w-0 h-0 border-l-4 border-l-gray-400 border-t-2 border-b-2 border-t-transparent border-b-transparent"></div>
+                      </motion.div>
+                    )}
+                  </React.Fragment>
+                ))}
+                
+                {/* NULL indicator */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center gap-2"
+                >
+                  <div className="w-8 h-0.5 bg-gray-400"></div>
+                  <div className="px-3 py-1 bg-red-100 border-2 border-red-300 rounded text-red-600 font-bold text-sm">
+                    NULL
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            )}
+          </div>
+        </div>
+
+        {/* Animation Controls & Code Display */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Step-by-Step Execution */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+              📝 Code Execution {selectedOperation && `- ${selectedOperation}`}
+            </h2>
+            
+            {animationSteps.length > 0 && (
+              <>
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-gray-600">
+                      Step {currentStep} of {animationSteps.length}
+                    </span>
+                    <button
+                      onClick={manualStepControl}
+                      disabled={currentStep >= animationSteps.length}
+                      className="px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:bg-gray-300"
+                    >
+                      Next Step
+                    </button>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(currentStep / animationSteps.length) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {currentStep > 0 && animationSteps[currentStep - 1] && (
+                  <div className="bg-gray-900 rounded-lg p-4 mb-4">
+                    <pre className="text-green-400 font-mono text-sm mb-2">
+                      {animationSteps[currentStep - 1].code}
+                    </pre>
+                    <p className="text-blue-300 text-sm">
+                      💡 {animationSteps[currentStep - 1].explanation}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Variables & State */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">🔧 Variables & Pointers</h2>
+            
+            <div className="space-y-3">
+              {Object.entries(variables).map(([key, value]) => (
+                <motion.div
+                  key={key}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                >
+                  <span className="font-mono text-sm text-gray-700">{key}:</span>
+                  <span className="font-mono text-sm font-semibold text-purple-600">
+                    {String(value)}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Legend */}
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h3 className="font-semibold text-gray-800 mb-2">🎨 Color Legend</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-purple-200 border-2 border-purple-500 rounded"></div>
+                  <span>Currently processing</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-green-200 border-2 border-green-500 rounded"></div>
+                  <span>New node</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-red-200 border-2 border-red-500 rounded"></div>
+                  <span>Being deleted</span>
                 </div>
               </div>
-              {idx !== list.length - 1 && (
-                <div className="text-3xl mt-2 text-blue-600 animate-bounce">➡</div>
-              )}
-            </motion.div>
-          ))}
-        </AnimatePresence>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Python Code Display */}
-      {pythonCode && (
-        <div className="w-full max-w-4xl bg-gray-900 text-green-400 rounded-lg p-6 shadow-lg">
-          <h2 className="text-2xl font-bold mb-4 text-white">Corresponding Python Code:</h2>
-          <pre className="whitespace-pre-wrap">
-            <code>{pythonCode}</code>
-          </pre>
-        </div>
-      )}
+      <style jsx>{`
+        .btn-primary {
+          @apply px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors font-medium;
+        }
+        .btn-secondary {
+          @apply px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium;
+        }
+        .btn-accent {
+          @apply px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium;
+        }
+      `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default LinkedListAnimation
+export default LinkedListAnimation;
